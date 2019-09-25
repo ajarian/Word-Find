@@ -1,8 +1,8 @@
 import React from "react";
-import '../styles/WordGrid.scss';
+import "../styles/WordGrid.scss";
 
 const languages = {
-  "es": 'Spanish'
+  es: "Spanish"
 };
 
 export default class WordGrid extends React.Component {
@@ -30,19 +30,30 @@ export default class WordGrid extends React.Component {
   buildCharacterGrid() {
     const { currentWordData } = this.state;
 
-    console.log(currentWordData);
     if (currentWordData !== undefined) {
-      let characterGrid = (
-          currentWordData.characterGrid.map((row, index) => {
-            return (
-              <tr className="grid-row" key={index} onMouseOver={(e) => (console.log(e))}>
-                {row.map((character, index) => {
-                  return <td className="grid-cell" key={index}>{character}</td>;
-                })}
-              </tr>
-            );
-          })
-      );
+      let characterGrid = currentWordData.characterGrid.map((row, index) => {
+        return (
+          <tr
+            className="grid-row"
+            key={index}
+            y-value={index}
+            onMouseEnter={e => console.log(e.currentTarget)}
+          >
+            {row.map((character, index) => {
+              return (
+                <td
+                  className="grid-cell"
+                  key={index}
+                  x-value={index}
+                  onMouseOver={e => console.log(e.target)}
+                >
+                  {character}
+                </td>
+              );
+            })}
+          </tr>
+        );
+      });
       this.setState({ characterGrid });
     }
   }
@@ -52,19 +63,20 @@ export default class WordGrid extends React.Component {
 
     return (
       <div className="grid-section">
-        { currentWordData &&
+        {currentWordData && (
           <div className="grid-heading">
-            <span>Target Word: {currentWordData.word}</span><br/> 
-            <span>Find all {languages[currentWordData.targetLanguage]} translations</span>  
+            <span>Target Word: {currentWordData.word}</span>
+            <br />
+            <span>
+              Find all {languages[currentWordData.targetLanguage]} translations
+            </span>
           </div>
-        }
-        { characterGrid && 
+        )}
+        {characterGrid && (
           <table className="character-grid">
-            <tbody>
-              { characterGrid }
-            </tbody>
+            <tbody>{characterGrid}</tbody>
           </table>
-        }
+        )}
       </div>
     );
   }
