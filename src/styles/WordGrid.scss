@@ -1,0 +1,25 @@
+.grid-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 600px;
+    height: 600px;
+
+    .grid-heading {
+        margin-top: 10px;
+    }
+
+    .character-grid {
+        margin-top: 20px;
+        border: 5px solid blue;
+        width: 80%;
+        height: 100%;
+
+        .grid-cell {
+            border: 1px solid black;
+            text-align: center;
+        }
+    }
+
+
+}
