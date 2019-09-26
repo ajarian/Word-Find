@@ -32,12 +32,11 @@ export default class WordGrid extends React.Component {
 
     if (currentWordData !== undefined) {
       let characterGrid = currentWordData.characterGrid.map((row, index) => {
+        let yPosition = index;
         return (
           <tr
             className="grid-row"
             key={index}
-            y-value={index}
-            onMouseEnter={e => console.log(e.currentTarget)}
           >
             {row.map((character, index) => {
               return (
@@ -45,6 +44,8 @@ export default class WordGrid extends React.Component {
                   className="grid-cell"
                   key={index}
                   x-value={index}
+                  onMouseDown={() => this.onCellClick({x: index, y: yPosition})}
+                  onMouseUp={this.onCellRelease}
                   onMouseOver={e => console.log(e.target)}
                 >
                   {character}
@@ -56,6 +57,18 @@ export default class WordGrid extends React.Component {
       });
       this.setState({ characterGrid });
     }
+  }
+
+  onCellClick(positionObject) {
+    console.log(positionObject);
+    // When a cell has been clicked highlighting should
+    // occur until release
+    this.setState({ highlightingEnabled: true });
+  }
+
+  onCellRelease() {
+    // On mouse up, highlighting is stopped and current
+    // word position is cleared
   }
 
   render() {
