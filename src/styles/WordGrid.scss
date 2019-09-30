@@ -1,25 +1,32 @@
 .grid-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 600px;
-    height: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 600px;
+  height: 600px;
 
-    .grid-heading {
-        margin-top: 10px;
+  .grid-heading {
+    margin-top: 10px;
+  }
+
+  .character-grid {
+    margin-top: 20px;
+    border: 5px solid blue;
+    width: 80%;
+    height: 80%;
+
+    .grid-cell {
+      border: 1px solid black;
+      text-align: center;
+      -webkit-user-select: none;
     }
 
-    .character-grid {
-        margin-top: 20px;
-        border: 5px solid blue;
-        width: 80%;
-        height: 100%;
-
-        .grid-cell {
-            border: 1px solid black;
-            text-align: center;
-        }
+    .grid-cell.highlighted {
+      background-color: lightblue;
     }
 
-
+    .grid-cell.highlighted.complete {
+      background-color: goldenrod;
+    }
+  }
 }
