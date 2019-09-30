@@ -167,7 +167,29 @@ export default class WordGrid extends React.Component {
               : `,${endPoint.x},${i}`;
         }
       } else {
-        // potentially diagonal end point
+        // Only add points if they're diagonal
+        let yDiff = endPoint.y - startPoint.y,
+            xDiff = endPoint.x - startPoint.x;
+        
+        // Diagonal points have equivalent differences between x & y values
+        if (Math.abs(yDiff) === Math.abs(xDiff)) {
+          const topValue = yDiff > 0 ? startPoint.y : endPoint.y,
+                bottomValue = topValue === startPoint.y ? endPoint.y : startPoint.y,
+                rightValue = xDiff > 0 ? endPoint.x : startPoint.x,
+                leftValue = xDiff === endPoint.x ? startPoint.x : endPoint.x;
+          
+          for (let i = topValue; i <= bottomValue; i++) {
+            selectedCharacterCoords[i] = {};
+            for (let j = leftValue; j <= rightValue; j++) {
+              selectedCharacterCoords[i][j] = true;
+              
+               possibleWordCoords +=
+                  possibleWordCoords.length === 0
+                    ? `${j},${i}`
+                    : `,${j},${i}`;
+            }
+          }
+        }
       }
 
       if (this.state.wordLocations[possibleWordCoords]) {
