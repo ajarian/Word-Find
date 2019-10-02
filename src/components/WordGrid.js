@@ -12,6 +12,7 @@ export default class WordGrid extends React.Component {
     this.state = {
       currentWordData: null,
       characterGrid: null,
+      gridComplete: false,
       successfulFinds: [],
       selectedCharacterCoords: {},
       startPoint: null,
@@ -19,10 +20,11 @@ export default class WordGrid extends React.Component {
     };
 
     this.buildCharacterGrid = this.buildCharacterGrid.bind(this);
-    this.isPositionSelected = this.isPositionSelected.bind(this);
+    this.determineCellStyle = this.determineCellStyle.bind(this);
     this.onCellClick = this.onCellClick.bind(this);
     this.onCellMove = this.onCellMove.bind(this);
     this.onCellRelease = this.onCellRelease.bind(this);
+    this.onGridComplete = this.onGridComplete.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -50,8 +52,7 @@ export default class WordGrid extends React.Component {
             {row.map((character, index) => {
               // create a cell for each character in the row
               const cellPosition = { x: index, y: yPosition };
-              let classnames = this.isPositionSelected(cellPosition);
-
+              let classnames = this.determineCellStyle(cellPosition);
               return (
                 <td
                   className={classnames}
@@ -72,30 +73,28 @@ export default class WordGrid extends React.Component {
     }
   }
 
-  isPositionSelected(position) {
+  determineCellStyle(position) {
     const { selectedCharacterCoords, startPoint, successfulFinds } = this.state;
+    let classnames = "grid-cell";
 
-    // If start point is null, nothing has been selected
-    if (startPoint !== null) {
-      if (successfulFinds.length > 0) {
-        successfulFinds.forEach(wordCoords => {
-          return wordCoords[position.y] && wordCoords[position.y][position.x]
-            ? "grid-cell highlighted complete"
-            : "grid-cell";
-        });
-      } else {
-        if (
-          selectedCharacterCoords[position.y] &&
-          selectedCharacterCoords[position.y][position.x]
-        ) {
-          return "grid-cell highlighted";
-        } else if (startPoint.y === position.y && startPoint.x === position.x) {
-          return "grid-cell highlighted";
-        } else {
-          return "grid-cell";
+    if (successfulFinds.length > 0) {
+      successfulFinds.forEach(wordCoords => {
+        if (wordCoords[position.y] && wordCoords[position.y][position.x]) {
+          classnames += " complete";
         }
-      }
+      });
     }
+
+    // Highlighted class is applied only if points have been selected
+    if (
+      startPoint !== null &&
+      selectedCharacterCoords[position.y] &&
+      selectedCharacterCoords[position.y][position.x]
+    ) {
+      classnames += " highlighted";
+    }
+
+    return classnames;
   }
 
   onCellClick(position) {
@@ -113,25 +112,16 @@ export default class WordGrid extends React.Component {
     );
   }
 
-  onCellRelease() {
-    // On mouse up, highlighting is stopped and current
-    // word position is cleared
-    this.setState(
-      {
-        selectedCharacterCoords: {},
-        startPoint: null
-      },
-      () => this.buildCharacterGrid()
-    );
-
-    console.log("released", this.state);
-  }
-
   onCellMove(endPoint) {
     // When mouse is moved away from starting point
     // determine all points that should be highlighted
     const { startPoint } = this.state;
-    let { selectedCharacterCoords, successfulFinds } = this.state,
+    let {
+        gridComplete,
+        selectedCharacterCoords,
+        successfulFinds,
+        wordLocations
+      } = this.state,
       possibleWordCoords = "";
 
     // Only modify selectedCharacterCoords if a starting point has been recorded
@@ -148,7 +138,7 @@ export default class WordGrid extends React.Component {
         for (let i = leftValue; i <= rightValue; i++) {
           selectedCharacterCoords[endPoint.y][i] = true;
           possibleWordCoords +=
-            possibleWordCoords.length === 0
+            possibleWordCoords === ''
               ? `${i},${endPoint.y}`
               : `,${i},${endPoint.y}`; // Xn,Yn
         }
@@ -162,56 +152,71 @@ export default class WordGrid extends React.Component {
           selectedCharacterCoords[i] = {};
           selectedCharacterCoords[i][endPoint.x] = true;
           possibleWordCoords +=
-            possibleWordCoords.length === 0
+            possibleWordCoords === ''
               ? `${endPoint.x},${i}`
               : `,${endPoint.x},${i}`;
         }
       } else {
-        // Only add points if they're diagonal
         let yDiff = endPoint.y - startPoint.y,
-            xDiff = endPoint.x - startPoint.x;
-        
+          xDiff = endPoint.x - startPoint.x;
+
         // Diagonal points have equivalent differences between x & y values
         if (Math.abs(yDiff) === Math.abs(xDiff)) {
-          const topValue = yDiff > 0 ? startPoint.y : endPoint.y,
-                bottomValue = topValue === startPoint.y ? endPoint.y : startPoint.y,
-                rightValue = xDiff > 0 ? endPoint.x : startPoint.x,
-                leftValue = xDiff === endPoint.x ? startPoint.x : endPoint.x;
-          
-          for (let i = topValue; i <= bottomValue; i++) {
-            selectedCharacterCoords[i] = {};
-            for (let j = leftValue; j <= rightValue; j++) {
-              selectedCharacterCoords[i][j] = true;
-              
-               possibleWordCoords +=
-                  possibleWordCoords.length === 0
-                    ? `${j},${i}`
-                    : `,${j},${i}`;
-            }
+          const topValue = yDiff > 0 ? startPoint : endPoint,
+            valuesRightward = (yDiff < 0 && xDiff < 0) || (yDiff > 0 && xDiff > 0);
+
+          // Loop captures diagonal values starting at topmost cell
+          for (let i = 0; i <= Math.abs(yDiff); i++) {
+            const yValue = topValue.y + i,
+              xValue = valuesRightward ? topValue.x + i : topValue.x - i;
+            selectedCharacterCoords[yValue] = {};
+            selectedCharacterCoords[yValue][xValue] = true;
+            possibleWordCoords +=
+              possibleWordCoords === ''
+                ? `${xValue},${yValue}`
+                : `,${xValue},${yValue}`;
           }
         }
       }
 
-      if (this.state.wordLocations[possibleWordCoords]) {
-        console.log("found the word!");
+      if (wordLocations[possibleWordCoords]) {
         successfulFinds.push(selectedCharacterCoords);
+        gridComplete =
+          successfulFinds.length ===
+          Object.getOwnPropertyNames(wordLocations).length;
 
-        this.setState({ successfulFinds });
+        this.setState({ gridComplete, successfulFinds }, () =>
+          this.buildCharacterGrid()
+        );
+      } else {
+        this.setState(
+          {
+            selectedCharacterCoords
+          },
+          () => this.buildCharacterGrid()
+        );
       }
-
-      this.setState(
-        {
-          selectedCharacterCoords
-        },
-        () => this.buildCharacterGrid()
-      );
     }
+  }
 
-    // see if all coords create the target word
+  onCellRelease() {
+    // On mouse up, highlighting is stopped and current
+    // selection is cleared
+    this.setState(
+      {
+        selectedCharacterCoords: {},
+        startPoint: null
+      },
+      () => this.buildCharacterGrid()
+    );
+  }
+
+  onGridComplete() {
+    this.props.onGridComplete();
   }
 
   render() {
-    const { characterGrid, currentWordData } = this.state;
+    const { characterGrid, currentWordData, gridComplete } = this.state;
 
     return (
       <div className="grid-section">
@@ -228,6 +233,13 @@ export default class WordGrid extends React.Component {
           <table className="character-grid">
             <tbody>{characterGrid}</tbody>
           </table>
+        )}
+        {gridComplete && (
+          <div className="button-area">
+            <button className="continue-button" onClick={this.onGridComplete}>
+              Next
+            </button>
+          </div>
         )}
       </div>
     );

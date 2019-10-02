@@ -1,6 +1,6 @@
 import React from "react";
 
-import "../styles/Layout.scss"; 
+import "../styles/Layout.scss";
 import WordGrid from "./WordGrid";
 
 export default class Layout extends React.Component {
@@ -8,11 +8,12 @@ export default class Layout extends React.Component {
     super(props);
 
     this.state = {
+      allGridsComplete: false,
       currentWordIndex: 0,
-      showFinishedMessage: false,
       wordObjects: []
     };
 
+    this.onGridComplete = this.onGridComplete.bind(this);
     this.requestWordData = this.requestWordData.bind(this);
   }
 
@@ -20,13 +21,19 @@ export default class Layout extends React.Component {
     this.requestWordData();
   }
 
+  onGridComplete() {
+    let { allGridsComplete, currentWordIndex, wordObjects } = this.state;
+
+    if (currentWordIndex + 1 < wordObjects.length) {
+      currentWordIndex += 1;
+    } else {
+      allGridsComplete = true;
+    }
+
+    this.setState({ allGridsComplete, currentWordIndex });
+  }
+
   requestWordData() {
-    // fetch(url)
-    //   .then(res => res.body)
-    //   .then(body => {
-    //     const reader = body.getReader();
-    //     reader.read().then(()
-    //   });
     const object = {
       sourceLanguage: "en",
       word: "man",
@@ -53,12 +60,20 @@ export default class Layout extends React.Component {
   }
 
   render() {
-    const { wordObjects, currentWordIndex } = this.state;
+    const { allGridsComplete, wordObjects, currentWordIndex } = this.state;
 
     return (
       <div className="layout">
         <h2>Let's Translate</h2>
-        <WordGrid currentWordData={wordObjects[currentWordIndex]} />
+        {!allGridsComplete && (
+          <WordGrid
+            currentWordData={wordObjects[currentWordIndex]}
+            onGridComplete={this.onGridComplete}
+          />
+        )}
+        { allGridsComplete && 
+        <h2>Congratulations! You're an expert linguist.</h2>
+        }
       </div>
     );
   }
