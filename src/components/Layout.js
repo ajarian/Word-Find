@@ -56,7 +56,7 @@ export default class Layout extends React.Component {
           />
         )}
         {allGridsComplete && (
-          <h2>Congratulations! You're an expert linguist.</h2>
+          <h2 className="finished-text">Congratulations! You're an expert linguist.</h2>
         )}
       </div>
     );
