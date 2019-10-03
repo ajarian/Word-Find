@@ -32,7 +32,7 @@ export default class WordGrid extends React.Component {
       this.setState(
         {
           currentWordData: this.props.currentWordData,
-          wordLocations: this.props.currentWordData.wordLocations
+          wordLocations: this.props.currentWordData.word_locations
         },
         () => this.buildCharacterGrid()
       );
@@ -43,7 +43,7 @@ export default class WordGrid extends React.Component {
     const { currentWordData } = this.state;
 
     if (currentWordData !== undefined) {
-      let characterGrid = currentWordData.characterGrid.map((row, index) => {
+      let characterGrid = currentWordData.character_grid.map((row, index) => {
         let yPosition = index;
 
         // create a table row for each row of characters
@@ -53,6 +53,7 @@ export default class WordGrid extends React.Component {
               // create a cell for each character in the row
               const cellPosition = { x: index, y: yPosition };
               let classnames = this.determineCellStyle(cellPosition);
+
               return (
                 <td
                   className={classnames}
@@ -62,7 +63,9 @@ export default class WordGrid extends React.Component {
                   onMouseUp={this.onCellRelease}
                   onMouseOver={() => this.onCellMove(cellPosition)}
                 >
-                  {character}
+                  <div className="character-container">
+                    {character.toUpperCase()}
+                  </div>
                 </td>
               );
             })}
@@ -78,8 +81,12 @@ export default class WordGrid extends React.Component {
     let classnames = "grid-cell";
 
     if (successfulFinds.length > 0) {
-      successfulFinds.forEach(wordCoords => {
-        if (wordCoords[position.y] && wordCoords[position.y][position.x]) {
+      successfulFinds.forEach(find => {
+        const characterDictionary = find.selectedCharacterCoords;
+        if (
+          characterDictionary[position.y] &&
+          characterDictionary[position.y][position.x]
+        ) {
           classnames += " complete";
         }
       });
@@ -138,7 +145,7 @@ export default class WordGrid extends React.Component {
         for (let i = leftValue; i <= rightValue; i++) {
           selectedCharacterCoords[endPoint.y][i] = true;
           possibleWordCoords +=
-            possibleWordCoords === ''
+            possibleWordCoords === ""
               ? `${i},${endPoint.y}`
               : `,${i},${endPoint.y}`; // Xn,Yn
         }
@@ -152,7 +159,7 @@ export default class WordGrid extends React.Component {
           selectedCharacterCoords[i] = {};
           selectedCharacterCoords[i][endPoint.x] = true;
           possibleWordCoords +=
-            possibleWordCoords === ''
+            possibleWordCoords === ""
               ? `${endPoint.x},${i}`
               : `,${endPoint.x},${i}`;
         }
@@ -163,7 +170,8 @@ export default class WordGrid extends React.Component {
         // Diagonal points have equivalent differences between x & y values
         if (Math.abs(yDiff) === Math.abs(xDiff)) {
           const topValue = yDiff > 0 ? startPoint : endPoint,
-            valuesRightward = (yDiff < 0 && xDiff < 0) || (yDiff > 0 && xDiff > 0);
+            valuesRightward =
+              (yDiff < 0 && xDiff < 0) || (yDiff > 0 && xDiff > 0);
 
           // Loop captures diagonal values starting at topmost cell
           for (let i = 0; i <= Math.abs(yDiff); i++) {
@@ -172,18 +180,32 @@ export default class WordGrid extends React.Component {
             selectedCharacterCoords[yValue] = {};
             selectedCharacterCoords[yValue][xValue] = true;
             possibleWordCoords +=
-              possibleWordCoords === ''
+              possibleWordCoords === ""
                 ? `${xValue},${yValue}`
                 : `,${xValue},${yValue}`;
           }
         }
       }
 
-      if (wordLocations[possibleWordCoords]) {
-        successfulFinds.push(selectedCharacterCoords);
-        gridComplete =
-          successfulFinds.length ===
-          Object.getOwnPropertyNames(wordLocations).length;
+      if (wordLocations[possibleWordCoords] && !gridComplete) {
+        successfulFinds.push({
+          selectedCharacterCoords,
+          locationString: possibleWordCoords
+        });
+        console.log(Object.getOwnPropertyNames(wordLocations));
+
+        if (
+          successfulFinds.length >=
+          Object.getOwnPropertyNames(wordLocations).length
+        ) {
+          for (let find of successfulFinds) {
+            gridComplete = true;
+            console.log(wordLocations[find.locationString]);
+            if (!wordLocations[find.locationString]) {
+              gridComplete = false;
+            }
+          }
+        }
 
         this.setState({ gridComplete, successfulFinds }, () =>
           this.buildCharacterGrid()
@@ -212,7 +234,13 @@ export default class WordGrid extends React.Component {
   }
 
   onGridComplete() {
-    this.props.onGridComplete();
+    this.setState(
+      {
+        gridComplete: false,
+        successfulFinds: []
+      },
+      this.props.onGridComplete()
+    );
   }
 
   render() {
@@ -222,10 +250,15 @@ export default class WordGrid extends React.Component {
       <div className="grid-section">
         {currentWordData && (
           <div className="grid-heading">
-            <span>Target Word: {currentWordData.word}</span>
+            <span>
+              Target Word:{' '}
+              <strong className="target-word">{currentWordData.word}</strong>
+            </span>
             <br />
             <span>
-              Find all {languages[currentWordData.targetLanguage]} translations
+              Find all{' '}
+              <strong>{languages[currentWordData.target_language]}</strong>{' '}
+              translations
             </span>
           </div>
         )}
@@ -236,9 +269,15 @@ export default class WordGrid extends React.Component {
         )}
         {gridComplete && (
           <div className="button-area">
+            <span role="img" aria-label="party-popper">
+              &#x1F389;
+            </span>
             <button className="continue-button" onClick={this.onGridComplete}>
               Next
             </button>
+            <span role="img" aria-label="party-popper">
+              &#x1F389;
+            </span>
           </div>
         )}
       </div>
