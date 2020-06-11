@@ -26,6 +26,8 @@ export default class WordGrid extends React.Component {
 		this.onCellRelease = this.onCellRelease.bind(this);
 		this.onGridComplete = this.onGridComplete.bind(this);
 		this.onSuccessfulFind = this.onSuccessfulFind.bind(this);
+
+		this.addEscListener();
 	}
 
 	componentDidUpdate(prevProps) {
@@ -41,6 +43,15 @@ export default class WordGrid extends React.Component {
 				() => this.buildCharacterGrid()
 			);
 		}
+	}
+
+	/** Enables cells to be released by ESC press */
+	addEscListener() {
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape') {
+				this.onCellRelease();
+			}
+		});
 	}
 
 	buildCharacterGrid() {

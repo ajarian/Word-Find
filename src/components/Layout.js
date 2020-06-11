@@ -3,7 +3,7 @@ import React from 'react';
 import '../styles/Layout.scss';
 import gameData from '../resources/gamedata.json';
 import WordGrid from './WordGrid';
-// import WordReferenceModal from './WordReferenceModal';
+import WordReferenceModal from './WordReferenceModal';
 
 export default class Layout extends React.Component {
 	constructor(props) {
@@ -47,6 +47,7 @@ export default class Layout extends React.Component {
 
 	render() {
 		const { allGridsComplete, wordObjects, currentWordIndex } = this.state;
+		const userHasSolvedGrid = currentWordIndex > 0;
 
 		return (
 			<div className="layout">
@@ -61,6 +62,12 @@ export default class Layout extends React.Component {
 					<h2 className="finished-text">
 						Congratulations! You're an expert linguist.
 					</h2>
+				)}
+				{userHasSolvedGrid && (
+					<WordReferenceModal
+						currentWordIndex={currentWordIndex}
+						wordObjects={wordObjects}
+					/>
 				)}
 			</div>
 		);
