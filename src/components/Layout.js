@@ -15,8 +15,8 @@ export default class Layout extends React.Component {
 			wordObjects: []
 		};
 
+		this.getWordData = this.getWordData.bind(this);
 		this.onGridComplete = this.onGridComplete.bind(this);
-		this.requestWordData = this.requestWordData.bind(this);
 	}
 
 	componentDidMount() {
