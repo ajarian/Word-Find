@@ -1,8 +1,9 @@
 import React from 'react';
 
-import gameData from '../resources/gamedata.json';
 import '../styles/Layout.scss';
+import gameData from '../resources/gamedata.json';
 import WordGrid from './WordGrid';
+// import WordReferenceModal from './WordReferenceModal';
 
 export default class Layout extends React.Component {
 	constructor(props) {
@@ -19,9 +20,10 @@ export default class Layout extends React.Component {
 	}
 
 	componentDidMount() {
-		this.requestWordData();
+		this.getWordData();
 	}
 
+	/** Advance user to next grid or display finished message */
 	onGridComplete() {
 		let { allGridsComplete, currentWordIndex, wordObjects } = this.state;
 
@@ -34,7 +36,7 @@ export default class Layout extends React.Component {
 		this.setState({ allGridsComplete, currentWordIndex });
 	}
 
-	requestWordData() {
+	getWordData() {
 		let { wordObjects } = this.state;
 		gameData.forEach((wordObject) => wordObjects.push(wordObject));
 

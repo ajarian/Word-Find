@@ -80,7 +80,7 @@ export default class WordGrid extends React.Component {
 		}
 	}
 
-	/* Ensure we don't add duplicate objects to succesfulFinds array */
+	/** Ensure we don't add duplicate objects to succesfulFinds array */ 
 	containsDuplicateEntry(successfulFinds, locationString) {
 		let containsDuplicate = false;
 
@@ -93,12 +93,12 @@ export default class WordGrid extends React.Component {
 		return containsDuplicate;
 	}
 
+  /** Used to mark completed or actively highlighted cells */
 	determineCellStyle(position) {
 		const { selectedCharacterCoords, startPoint, successfulFinds } = this.state;
 		let classnames = 'grid-cell';
 
-		// Successful finds array holds objects that contain a character lookup and
-		// a string created from those coordinates
+		// Successful finds array holds objects that contain a character lookup
 		if (successfulFinds.length > 0) {
 			successfulFinds.forEach((find) => {
 				const characterDictionary = find.selectedCharacterCoords;
@@ -179,9 +179,8 @@ export default class WordGrid extends React.Component {
 		return locationString;
 	}
 
+	/** Handles cell selection, highlighting occurs until release */
 	onCellClick(position) {
-		// When a cell has been clicked highlighting should
-		// occur until release
 		let { selectedCharacterCoords } = this.state;
 		selectedCharacterCoords[position.y] = {};
 		selectedCharacterCoords[position.y][position.x] = true;
@@ -195,6 +194,7 @@ export default class WordGrid extends React.Component {
 		);
 	}
 
+	/** Handles mouse movement and makes updates if user has selected cells */
 	onCellMove(endPoint) {
 		const { startPoint } = this.state;
 		let { gridComplete, wordLocations } = this.state,
@@ -227,6 +227,8 @@ export default class WordGrid extends React.Component {
 				);
 			}
 
+			// If the resultant location string matches a word location
+			// pass data to success handler, otherwise rebuild the grid
 			if (wordLocations[locationString] && !gridComplete) {
 				this.onSuccessfulFind(selectedCharacterCoords, locationString);
 			} else {
@@ -266,8 +268,7 @@ export default class WordGrid extends React.Component {
 			gridComplete = false;
 		const wordLocationStrings = Object.getOwnPropertyNames(wordLocations);
 
-		// Storing selectedCharacterCoords to do character comparison when
-		// building the grid and corresponding location string to determine grid completion
+		// Update array if word hasn't already been located
 		if (!this.containsDuplicateEntry(successfulFinds, locationString)) {
 			successfulFinds.push({
 				selectedCharacterCoords,
@@ -279,8 +280,9 @@ export default class WordGrid extends React.Component {
 			(find) => find.locationString
 		);
 
-		// Grid is solved if every location string in word locations has been found
-		if (successfulFinds.length >= wordLocationStrings.length) {
+		// Grid is solved if every user-found location string matches
+		// the game data's set of location strings 
+		if (successfulFinds.length === wordLocationStrings.length) {
 			gridComplete = true;
 
 			for (let string of wordLocationStrings) {
