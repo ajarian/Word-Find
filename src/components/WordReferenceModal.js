@@ -71,14 +71,15 @@ export default class WordReferenceModal extends React.Component {
 		foundWordObjects.forEach((wordObject) => {
 			const translatedWords = Object.values(wordObject.word_locations);
 			translatedWordElements.push(
-				<li>
+				<li key={wordObject.word}>
 					The Spanish translation of {wordObject.word} is{' '}
-					<a href={this.createUrl(translatedWords)}>{translatedWords} </a>
+					<a href={this.createUrl(translatedWords)} target="_blank" rel="noopener noreferrer">
+						{translatedWords}{' '}
+					</a>
 				</li>
 			);
 		});
 
-		console.log(translatedWordElements);
 		const body = (
 			<div style={modalStyles}>
 				<ul>{translatedWordElements}</ul>

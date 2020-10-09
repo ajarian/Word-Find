@@ -51,24 +51,19 @@
 		}
 	}
 
+	.hidden {
+		visibility: hidden;
+	}
+
 	.button-area {
-		margin-top: 20px;
+		margin-top: 10px;
 	}
 
 	.continue-button {
-		border-radius: 10px;
-		cursor: pointer;
-		font-size: 16px;
-		height: 34px;
-		margin: 20px 10px 0 10px;
-		width: 80px;
+		margin: 0 8px;
 	}
 
-	.continue-button:hover {
-		background-color: $button-alt-gray;
-	}
-
-	.continue-button:focus {
-		outline: 0;
+	.confetti {
+		font-size: 22px;
 	}
 }

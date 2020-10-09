@@ -17,10 +17,36 @@ export default class Layout extends React.Component {
 
 		this.getWordData = this.getWordData.bind(this);
 		this.onGridComplete = this.onGridComplete.bind(this);
+		this.onGameRestart = this.onGameRestart.bind(this);
+		this.advance = this.advance.bind(this);
+		this.resetGridWords = this.resetGridWords.bind(this);
 	}
 
 	componentDidMount() {
 		this.getWordData();
+	}
+
+	getWordData() {
+		let wordObjects = [];
+		gameData.forEach((wordObject) => wordObjects.push(wordObject));
+
+		this.setState({
+			wordObjects: wordObjects
+		});
+	}
+
+	/** Reset state to allow for another round */
+	onGameRestart() {
+		this.setState({
+			allGridsComplete: false,
+		}, () => setTimeout(this.resetGridWords(), 0));
+	}
+
+	/** Feed grid the first word object */
+	resetGridWords() {
+		this.setState({
+			currentWordIndex: 0
+		});
 	}
 
 	/** Advance user to next grid or display finished message */
@@ -36,32 +62,38 @@ export default class Layout extends React.Component {
 		this.setState({ allGridsComplete, currentWordIndex });
 	}
 
-	getWordData() {
-		let { wordObjects } = this.state;
-		gameData.forEach((wordObject) => wordObjects.push(wordObject));
-
+	// remove
+	advance() {
 		this.setState({
-			wordObjects: wordObjects
+			allGridsComplete: true,
 		});
 	}
 
+	
 	render() {
 		const { allGridsComplete, wordObjects, currentWordIndex } = this.state;
 		const userHasSolvedGrid = currentWordIndex > 0;
+		const currentGridData = wordObjects[currentWordIndex];
 
 		return (
 			<div className="layout">
 				<h2>Let's Translate!</h2>
+				<button onClick={this.advance}>End Game</button>
 				{!allGridsComplete && (
-					<WordGrid
-						currentWordData={wordObjects[currentWordIndex]}
+					<div>
+						<WordGrid
+						currentWordData={currentGridData}
 						onGridComplete={this.onGridComplete}
-					/>
+						/>
+					</div>
 				)}
 				{allGridsComplete && (
-					<h2 className="finished-text">
-						Congratulations! You're an expert linguist.
-					</h2>
+					<div className="complete-section">
+						<h2 className="finished-text">
+							Congratulations! You're an expert linguist.
+						</h2>
+						<button onClick={this.onGameRestart}>Restart Game</button>
+					</div>
 				)}
 				{userHasSolvedGrid && (
 					<WordReferenceModal

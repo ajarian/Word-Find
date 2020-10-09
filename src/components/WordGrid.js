@@ -3,7 +3,7 @@ import GridHeader from './GridHeader';
 import '../styles/WordGrid.scss';
 
 const languages = {
-	es: 'Spanish',
+	es: 'Spanish'
 };
 
 export default class WordGrid extends React.Component {
@@ -31,14 +31,17 @@ export default class WordGrid extends React.Component {
 	}
 
 	componentDidUpdate(prevProps) {
-		if (this.props.currentWordData !== prevProps.currentWordData) {
+		if (
+			this.props.currentWordData !== prevProps.currentWordData ||
+			this.state.currentWordData === null
+		) {
 			const wordLocations = this.props.currentWordData.word_locations,
 				totalWordsToFind = Object.getOwnPropertyNames(wordLocations).length;
 			this.setState(
 				{
 					currentWordData: this.props.currentWordData,
 					totalWordsToFind,
-					wordLocations,
+					wordLocations
 				},
 				() => this.buildCharacterGrid()
 			);
@@ -91,7 +94,7 @@ export default class WordGrid extends React.Component {
 		}
 	}
 
-	/** Ensure we don't add duplicate objects to succesfulFinds array */ 
+	/** Ensures we don't add duplicate objects to succesfulFinds array */
 	containsDuplicateEntry(successfulFinds, locationString) {
 		let containsDuplicate = false;
 
@@ -104,7 +107,7 @@ export default class WordGrid extends React.Component {
 		return containsDuplicate;
 	}
 
-  /** Used to mark completed or actively highlighted cells */
+	/** Used to mark completed or actively highlighted cells */
 	determineCellStyle(position) {
 		const { selectedCharacterCoords, startPoint, successfulFinds } = this.state;
 		let classnames = 'grid-cell';
@@ -199,7 +202,7 @@ export default class WordGrid extends React.Component {
 		this.setState(
 			{
 				selectedCharacterCoords,
-				startPoint: position,
+				startPoint: position
 			},
 			() => this.buildCharacterGrid()
 		);
@@ -245,7 +248,7 @@ export default class WordGrid extends React.Component {
 			} else {
 				this.setState(
 					{
-						selectedCharacterCoords,
+						selectedCharacterCoords
 					},
 					() => this.buildCharacterGrid()
 				);
@@ -292,7 +295,7 @@ export default class WordGrid extends React.Component {
 		);
 
 		// Grid is solved if every user-found location string matches
-		// the game data's set of location strings 
+		// the game data's set of location strings
 		if (successfulFinds.length === wordLocationStrings.length) {
 			gridComplete = true;
 
@@ -317,6 +320,8 @@ export default class WordGrid extends React.Component {
 			totalWordsToFind
 		} = this.state;
 
+		const showConfetti = gridComplete ? 'confetti' : 'hidden';
+
 		return (
 			<div className="grid-section">
 				{currentWordData && (
@@ -336,19 +341,17 @@ export default class WordGrid extends React.Component {
 					</div>
 				)}
 
-				{gridComplete && (
-					<div className="button-area">
-						<span role="img" aria-label="party-popper">
-							&#x1F389;
-						</span>
-						<button className="continue-button" onClick={this.onGridComplete}>
-							Next
-						</button>
-						<span role="img" aria-label="party-popper">
-							&#x1F389;
-						</span>
-					</div>
-				)}
+				<div className="button-area">
+					<span className={showConfetti} role="img" aria-label="party-popper">
+						&#x1F389;
+					</span>
+					<button className="continue-button" disabled={!gridComplete} onClick={this.onGridComplete}>
+						Next
+					</button>
+					<span className={showConfetti} role="img" aria-label="party-popper">
+						&#x1F389;
+					</span>
+				</div>
 			</div>
 		);
 	}
