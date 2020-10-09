@@ -72,7 +72,7 @@ export default class WordReferenceModal extends React.Component {
 			const translatedWords = Object.values(wordObject.word_locations);
 			translatedWordElements.push(
 				<li key={wordObject.word}>
-					The Spanish translation of {wordObject.word} is{' '}
+					The Spanish translation of <i>{wordObject.word}</i> is{' '}
 					<a href={this.createUrl(translatedWords)} target="_blank" rel="noopener noreferrer">
 						{translatedWords}{' '}
 					</a>

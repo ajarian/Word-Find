@@ -60,7 +60,7 @@ export default class WordGrid extends React.Component {
 	buildCharacterGrid() {
 		const { currentWordData } = this.state;
 
-		if (currentWordData !== undefined) {
+		if (currentWordData) {
 			let characterGrid = currentWordData.character_grid.map((row, index) => {
 				let yPosition = index;
 

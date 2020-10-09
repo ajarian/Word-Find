@@ -18,7 +18,6 @@ export default class Layout extends React.Component {
 		this.getWordData = this.getWordData.bind(this);
 		this.onGridComplete = this.onGridComplete.bind(this);
 		this.onGameRestart = this.onGameRestart.bind(this);
-		this.advance = this.advance.bind(this);
 		this.resetGridWords = this.resetGridWords.bind(this);
 	}
 
@@ -42,13 +41,6 @@ export default class Layout extends React.Component {
 		}, () => setTimeout(this.resetGridWords(), 0));
 	}
 
-	/** Feed grid the first word object */
-	resetGridWords() {
-		this.setState({
-			currentWordIndex: 0
-		});
-	}
-
 	/** Advance user to next grid or display finished message */
 	onGridComplete() {
 		let { allGridsComplete, currentWordIndex, wordObjects } = this.state;
@@ -62,14 +54,13 @@ export default class Layout extends React.Component {
 		this.setState({ allGridsComplete, currentWordIndex });
 	}
 
-	// remove
-	advance() {
+	/** Feed grid the first word object */
+	resetGridWords() {
 		this.setState({
-			allGridsComplete: true,
+			currentWordIndex: 0
 		});
 	}
 
-	
 	render() {
 		const { allGridsComplete, wordObjects, currentWordIndex } = this.state;
 		const userHasSolvedGrid = currentWordIndex > 0;
@@ -78,7 +69,6 @@ export default class Layout extends React.Component {
 		return (
 			<div className="layout">
 				<h2>Let's Translate!</h2>
-				<button onClick={this.advance}>End Game</button>
 				{!allGridsComplete && (
 					<div>
 						<WordGrid
